@@ -1,6 +1,11 @@
+import InjectionPoint from './InjectionPoint';
+import { InjectionTarget } from './Injector';
+
 /**
- * Decorates a Class with a PropertyInjection point.
+ * Decorates a Class one or more InjectionPoints via the `__inject__` hash stored
+ * directly against the constructor Function.
  *
+ * Inject into a property.
  * <pre>
  *     class MyActor {
  *       @inject('firstName')
@@ -8,11 +13,19 @@
  *     }
  * </pre>
  *
+ * Inject into a method.
+ * <pre>
+ *     class MyActor {
+ *       @inject('firstName', 'lastName')
+ *       setName(first : string, last : string) { ... }
+ *     }
+ * </pre>
+ *
  * @decorator
- * @param {string} injectionKey
+ * @param {Array<string>} injectionKeys
  * @returns {function(Object, string): void}
  */
-export default function inject(injectionKey : string) {
+export default function inject(...injectionKeys : Array<string>) {
 
     // Our decorator provides a factory function which will be invoked with an
     // instance of the decorated Class and the name of the decorated property.
@@ -20,14 +33,13 @@ export default function inject(injectionKey : string) {
 
         // Get a reference to the Class of the target object which has been
         // decorated.
-        const targetType : { __inject__?: { [ name : string ] : string } } = target.constructor;
+        const targetType : InjectionTarget = target.constructor;
 
         if (!targetType.hasOwnProperty('__inject__')) {
             targetType.__inject__ = {};
         }
 
-        // Associate this property with the injectionKey provided in the
-        // decorator call
-        targetType.__inject__[decoratedPropertyName] = injectionKey;
+        targetType.__inject__[decoratedPropertyName] = new InjectionPoint(
+                                        target, decoratedPropertyName, injectionKeys);
     };
 }

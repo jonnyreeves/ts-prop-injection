@@ -1,3 +1,5 @@
+import InjectionPoint from './InjectionPoint';
+
 export default class Injector {
 
     /**
@@ -33,37 +35,23 @@ export default class Injector {
         // Loop through all properties decorated with `@inject()` in this Class and
         // try to satisfy them if there is a mapped value.
         for (let injectionPoint of this.getInjectionPoints(Class)) {
-            const injectionValue : any = this.valuesByInjectionKey[injectionPoint.injectionKey];
-
-            // Perform the injection if we have a value assigned to this injectionKey.
-            if (injectionValue) {
-                instance[injectionPoint.propertyName] = injectionValue;
-            }
+            injectionPoint.inject(this.getInjectionValues(injectionPoint));
         }
 
         return instance;
     }
 
-    private getInjectionPoints<T>(Class : { __inject__?: { [ prop : string ] : string } }) : Array<InjectionPoint> {
-        var result : Array<InjectionPoint> = [];
+    private getInjectionPoints<T>(Class : InjectionTarget) : Array<InjectionPoint> {
+        return Object.keys(Class.__inject__ || [])
+            .map(propertyName => Class.__inject__[propertyName]);
+    }
 
-        // Retrieve the `__inject__` hash created by the @inject decorator from the
-        // target Class.
-        if (Class.hasOwnProperty('__inject__')) {
-            result = Object.keys(Class.__inject__)
-                .map((propertyName : string) => {
-                    return {
-                        propertyName: propertyName,
-                        injectionKey: Class.__inject__[propertyName]
-                    }
-                });
-        }
-
-        return result;
+    private getInjectionValues(injectionPoint : InjectionPoint) : Array<any> {
+        return injectionPoint.injectionKeys
+            .map(key => this.valuesByInjectionKey[key]);
     }
 }
 
-interface InjectionPoint {
-    propertyName : string;
-    injectionKey : string;
+export interface InjectionTarget {
+    __inject__?: { [ prop : string ] : InjectionPoint };
 }
