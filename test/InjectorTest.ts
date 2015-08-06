@@ -9,7 +9,7 @@ describe('Injector', () => {
         injector = new Injector();
     });
 
-    describe('#instantiate', () => {
+    describe('#instantiate()', () => {
         it('should inject into properties that employ the @inject decorator', () => {
             injector.mapValue('firstName', 'Dave');
             const instance = injector.instantiate(PropertyInjectionActor);
@@ -25,6 +25,15 @@ describe('Injector', () => {
 
             if (instance.prop !== 'Dave') {
                 throw new Error('expected value `Dave` to be injected into SetterInjectionActor#prop');
+            }
+        });
+
+        it('should inject into constructors that employ the @inject decorator', () => {
+            injector.mapValue('firstName', 'Dave');
+            const instance = injector.instantiate(CtorInjectionActor);
+
+            if (instance.getProp() !== 'Dave') {
+                throw new Error('expected value `Dave` to be injected into CtorInjectionActor()');
             }
         });
 
@@ -73,6 +82,15 @@ class SetterInjectionActor {
     }
 
     get prop() : string {
+        return this._prop;
+    }
+}
+
+@inject('firstName')
+class CtorInjectionActor {
+    constructor(private _prop:string) {}
+
+    getProp() : string {
         return this._prop;
     }
 }

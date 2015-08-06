@@ -1,6 +1,6 @@
 {
   "name": "ts-prop-injection",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "devDependencies": {
     "mocha": "^2.2.5"
   },

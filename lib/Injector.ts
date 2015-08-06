@@ -1,4 +1,5 @@
 import InjectionPoint from './InjectionPoint';
+import { Constructable, invokeConstructor, CONSTRUCTOR_PROPERTY_NAME } from './utils';
 
 export default class Injector {
 
@@ -7,7 +8,7 @@ export default class Injector {
      *
      * @type {{ string: * }}
      */
-    private valuesByInjectionKey : { [ injectionKey : string ] : any } = {};
+    private valuesByInjectionKey : { [ injectionKey : string ] : any } = Object.create(null);
 
     /**
      * Associate an injectionKey with a value so that when Injector#instantiate is
@@ -28,30 +29,64 @@ export default class Injector {
      * @param {function} Class
      * @returns {T}
      */
-    instantiate<T>(Class : { new(...args: any[]) : T }) : T {
-        // Start by creating a new instance of the target Class.
-        const instance : any = new Class();
+    instantiate<T>(Class : Constructable<T>) : T {
+        // Create an instance of the target Class applying the Constructor InjectionPoint if it has one.
+        const instance : T = this.createInjecteeInstance(Class);
 
-        // Loop through all properties decorated with `@inject()` in this Class and
-        // try to satisfy them if there is a mapped value.
-        for (let injectionPoint of this.getInjectionPoints(Class)) {
+        // Apply all remaining InjectionPoints on the instance.
+        for (let injectionPoint of this.getInstanceInjectionPoints(Class)) {
             injectionPoint.inject(this.getInjectionValues(injectionPoint));
         }
 
         return instance;
     }
 
-    private getInjectionPoints<T>(Class : InjectionTarget) : Array<InjectionPoint> {
+    /**
+     * Return a collection of InjectPoint's from the target Class which should be applied against an instance of
+     * the target Class, excludes the Constructor InjectionPoint
+     *
+     * @param {function} Class
+     * @returns {Array<InjectionPoint>}
+     */
+    private getInstanceInjectionPoints<T>(Class : InjectionTarget) : Array<InjectionPoint> {
         return Object.keys(Class.__inject__ || [])
+            .filter(propertyName => propertyName !== CONSTRUCTOR_PROPERTY_NAME)
             .map(propertyName => Class.__inject__[propertyName]);
     }
 
+    /**
+     * @param {InjectionPoint} injectionPoint
+     * @returns {Array<*>}
+     */
     private getInjectionValues(injectionPoint : InjectionPoint) : Array<any> {
         return injectionPoint.injectionKeys
             .map(key => this.valuesByInjectionKey[key]);
     }
+
+    /**
+     * Instantiates the supplied Class applying a Constructor InjectionPoint if it has one.
+     *
+     * @param {function} Class to instantiate.
+     * @returns {object} instance of supplied Class
+     */
+    private createInjecteeInstance<T>(Class : Constructable<T>) : T {
+        let result : T;
+
+        if (Class.hasOwnProperty('__inject__')) {
+            const injectionPoint : InjectionPoint = (<InjectionTarget> Class).__inject__[CONSTRUCTOR_PROPERTY_NAME];
+
+            if (injectionPoint) {
+                result = invokeConstructor(Class, this.getInjectionValues(injectionPoint));
+            }
+        }
+
+        return result || new Class();
+    }
 }
 
+/**
+ * Identifies an object which carries injection metadata.
+ */
 export interface InjectionTarget {
     __inject__?: { [ prop : string ] : InjectionPoint };
 }
