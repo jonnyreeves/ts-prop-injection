@@ -5,9 +5,11 @@
     "chai": "^3.2.0",
     "mocha": "^2.2.5",
     "rimraf": "^2.4.2",
+    "tsd": "^0.6.3",
     "typescript": "^1.5.3"
   },
   "scripts": {
+    "postinstall": "tsd install",
     "precompile": "rimraf index.js* lib/**/*.js*",
     "compile": "tsc --experimentalDecorators --target es5 --module commonjs --noImplicitAny",
     "prepublish": "npm run compile index.ts",
