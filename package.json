@@ -1,14 +1,17 @@
 {
   "name": "ts-prop-injection",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "devDependencies": {
-    "mocha": "^2.2.5"
+    "chai": "^3.2.0",
+    "mocha": "^2.2.5",
+    "rimraf": "^2.4.2",
+    "typescript": "^1.5.3"
   },
   "scripts": {
-    "pretest": "tsc test/*Test.ts --experimentalDecorators --target es5 --module commonjs --noImplicitAny",
+    "precompile": "rimraf index.js* lib/**/*.js*",
+    "compile": "tsc --experimentalDecorators --target es5 --module commonjs --noImplicitAny",
+    "prepublish": "npm run compile index.ts",
+    "pretest": "npm run compile test/*.spec.ts",
     "test": "mocha test/**/*.js"
-  },
-  "dependencies": {
-    "typescript": "^1.5.3"
   }
 }
