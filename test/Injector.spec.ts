@@ -1,69 +1,46 @@
 /// <reference path="../typings/mocha/mocha.d.ts" />
 import Injector from '../lib/Injector';
 import inject from '../lib/inject';
+import { expect } from 'chai';
 
 describe('Injector', () => {
     var injector : Injector;
 
     beforeEach(() => {
         injector = new Injector();
+        injector.mapValue('firstName', 'Dave');
+        injector.mapValue('lastName', 'Grohl');
     });
 
     describe('#instantiate()', () => {
         it('should inject into properties that employ the @inject decorator', () => {
-            injector.mapValue('firstName', 'Dave');
             const instance = injector.instantiate(PropertyInjectionActor);
-
-            if (instance.prop !== 'Dave') {
-                throw new Error('expected value `Dave` to be injected into PropertyInjectionActor#prop');
-            }
+            expect(instance.prop).to.equal('Dave');
         });
 
         it('should inject into setters that employ the @inject decorator', () => {
-            injector.mapValue('firstName', 'Dave');
             const instance = injector.instantiate(SetterInjectionActor);
-
-            if (instance.prop !== 'Dave') {
-                throw new Error('expected value `Dave` to be injected into SetterInjectionActor#prop');
-            }
+            expect(instance.prop).to.equal('Dave');
         });
 
         it('should inject into constructors that employ the @inject decorator', () => {
-            injector.mapValue('firstName', 'Dave');
             const instance = injector.instantiate(CtorInjectionActor);
-
-            if (instance.getProp() !== 'Dave') {
-                throw new Error('expected value `Dave` to be injected into CtorInjectionActor()');
-            }
+            expect(instance.getProp()).to.equal('Dave');
         });
 
         it('should inject into methods that employ the @inject decorator', () => {
-            injector.mapValue('firstName', 'Dave');
             const instance = injector.instantiate(MethodInjectionActor);
-
-            if (instance.getProp() !== 'Dave') {
-                throw new Error('expected value `Dave` to be injected into MethodInjectionActor#setProp()');
-            }
+            expect(instance.getProp()).to.equal('Dave');
         });
 
-        it('should inject multiple arguments into methos that employ the @inject decorator', () => {
-            injector.mapValue('firstName', 'Dave');
-            injector.mapValue('lastName', 'Frankenpuss');
+        it('should inject multiple arguments into methods that employ the @inject decorator', () => {
             const instance = injector.instantiate(MultiMethodInjectionActor);
-
-            if (instance.fullName !== 'Dave Frankenpuss') {
-                throw new Error('expected values `Dave` and `Frankenpuss` to be ' +
-                    'injected into MultiMethodInjectionActor#setName() but was ' + instance.fullName);
-            }
+            expect(instance.fullName).to.equal('Dave Grohl');
         });
 
         it('should not inject into properties that do not employ the @inject decorator', () => {
-            injector.mapValue('firstName', 'Dave');
             const instance = injector.instantiate(UnDecoratedActor);
-
-            if (instance.prop !== undefined) {
-                throw new Error('expected no injection for UnDecoratedActor#prop');
-            }
+            expect(instance.prop).to.be.undefined;
         });
     })
 });

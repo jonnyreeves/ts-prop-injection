@@ -1,5 +1,6 @@
-/// <reference path="../typings/mocha/mocha.d.ts" />
+/// <reference path="../typings/tsd.d.ts" />
 import { default as InjectionPoint, ConstructorInjectionPoint } from '../lib/InjectionPoint';
+import { expect } from 'chai';
 
 describe('InjectionPoint', () => {
     describe('#inject()', () => {
@@ -13,9 +14,7 @@ describe('InjectionPoint', () => {
             const point = new InjectionPoint(target, 'setter', [ 'key' ]);
             point.inject([ 'expected' ]);
 
-            if (target.value !== 'expected') {
-                throw new Error('Expected value to be injected using method');
-            }
+            expect(target.value).to.equal('expected');
         });
 
         it('should inject multiple arguments into a method', () => {
@@ -29,20 +28,17 @@ describe('InjectionPoint', () => {
             const point = new InjectionPoint(target, 'setter', [ 'key' ]);
             point.inject([ 'foo', 'bar' ]);
 
-            if (target.value1 !== 'foo' || target.value2 !== 'bar') {
-                throw new Error('Expected all values to be injected using method');
-            }
+            expect(target.value1).to.equal('foo');
+            expect(target.value2).to.equal('bar');
         });
 
-        it('should inject into a property if the value is defined', () => {
+        it('should inject into a property', () => {
             const target : any = {};
 
             const point = new InjectionPoint(target, 'prop', [ 'key' ]);
             point.inject([ 'expected' ]);
 
-            if (target.prop !== 'expected') {
-                throw new Error('Expected value to be injected into property');
-            }
+            expect(target.prop).to.equal('expected');
         });
     });
 });
@@ -52,26 +48,14 @@ describe('ConstructorInjectionPoint', () => {
         it('should be constructor', () => {
             const point = new ConstructorInjectionPoint([]);
 
-            if (point.propertyName !== 'constructor') {
-                throw new Error('Expected ConstructorInjectionPoint#propName to be constructor but was ' + point.propertyName);
-            }
+            expect(point.propertyName).to.equal('constructor');
         });
     });
     describe('#inject()', () => {
         it('should throw when invoked', () => {
             const point = new ConstructorInjectionPoint([]);
-            let errorThrown : Error = null;
 
-            try {
-                point.inject([ 'expected' ]);
-            }
-            catch (e) {
-                errorThrown = e;
-            }
-
-            if (!(errorThrown instanceof Error)) {
-                throw new Error('Expected ConstructorInjectionPoint#inject() to throw');
-            }
+            expect(() => { point.inject([ 'expected' ]) }).to.throw();
         });
     });
 });

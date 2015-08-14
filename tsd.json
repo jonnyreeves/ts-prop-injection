@@ -7,6 +7,9 @@
   "installed": {
     "mocha/mocha.d.ts": {
       "commit": "db3a54c801e29e73bdaae327a64ed7991778c958"
+    },
+    "chai/chai.d.ts": {
+      "commit": "e95958ac847d9a343bdc8d7cbc796a5f6da29f71"
     }
   }
 }
