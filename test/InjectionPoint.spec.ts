@@ -1,4 +1,3 @@
-/// <reference path="../typings/tsd.d.ts" />
 import { default as InjectionPoint, ConstructorInjectionPoint } from '../lib/InjectionPoint';
 import { expect } from 'chai';
 

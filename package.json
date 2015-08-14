@@ -11,7 +11,7 @@
     "precompile": "rimraf index.js* lib/**/*.js*",
     "compile": "tsc --experimentalDecorators --target es5 --module commonjs --noImplicitAny",
     "prepublish": "npm run compile index.ts",
-    "pretest": "npm run compile test/*.spec.ts",
+    "pretest": "npm run compile index.ts test/*.spec.ts",
     "test": "mocha test/**/*.js"
   }
 }
