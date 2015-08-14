@@ -1,4 +1,3 @@
-/// <reference path="../typings/mocha/mocha.d.ts" />
 import { invokeConstructor } from '../lib/utils';
 import { expect } from 'chai';
 

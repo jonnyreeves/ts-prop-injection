@@ -1,4 +1,3 @@
-/// <reference path="../typings/mocha/mocha.d.ts" />
 import Injector from '../lib/Injector';
 import inject from '../lib/inject';
 import { expect } from 'chai';
